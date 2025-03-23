@@ -9,22 +9,28 @@ app.use(cors());
 app.use(express.json());
 
 
-app.get('/' , (req , res) => {
+app.get('/', (req, res) => {
     res.send('hello google cloud');
 })
 
-app.post('/addUser', async (req, res) => {
-    const { website, username, password } = req.body;
-    const newUser = new User({ website, username, password });
-    await newUser.save();
-    res.send('User added successfully');
+app.post('/add', async (req, res) => {
+    console.log("Received Data:", req.body);  // ✅ Debugging ke liye
+    try {
+        const { username, password, website } = req.body;
+        const newPassword = new User({ website, username, password });
+        await newPassword.save();
+        res.json({ message: "Data stored successfully in MongoDB Atlas" });
+    } catch (error) {
+        console.error("Database Error:", error);  // ✅ Error ko console me print karo
+        res.status(500).json({ message: "Error storing data", error });
+    }
 });
+
 
 app.get('/getUsers', async (req, res) => {
     const users = await User.find();
-    res.send(users);
+    res.json(users);
 });
-
-const PORT =  5000;
+const PORT = 5000;
 
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`))
